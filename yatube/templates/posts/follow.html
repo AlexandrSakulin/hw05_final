@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  Последние обновления на сайте
+{% endblock %}
+
+{% block content %}
+  <div class="container py-5">
+    <h1>Все посты автора</h1>
+    {% include 'posts/includes/switcher.html' %}
+    {% for post in page_obj %}
+      {% include 'posts/includes/card_post.html' %}
+      {% if not forloop.last %}<hr>{% endif %}
+    {% endfor %}
+  {% include 'posts/includes/paginator.html' %}
+  </div>
+{% endblock %}

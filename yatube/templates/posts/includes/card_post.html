@@ -1,0 +1,28 @@
+{% load thumbnail %}
+
+<article>
+  <ul>
+    <li>
+      {% if not flag_profile  %}
+        <a href="{% url 'posts:profile' post.author.username %}" >Автор: {{ post.author.get_full_name }}</a>
+      {% else %}
+        Автор: {{ post.author.get_full_name }}
+      {% endif %}
+    </li>
+    <li>
+      Дата публикации: {{ post.pub_date|date:"d E Y" }}
+    </li>
+  </ul>
+  {% thumbnail post.image "1295x300" crop="center" as im %}
+    <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+  {% endthumbnail %}
+  <p>{{ post.text|linebreaksbr }}</p>
+  <a href="{% url 'posts:post_detail' post.pk %}">подробная информация </a> <br>
+</article>
+{% if not flag_profile  %}
+  {% if post.group  %}
+    <a href="{% url 'posts:group_list' post.group.slug %}">все записи группы</a>
+  {% else %}
+    <span style='color: red'>Этой публикации нет ни в одном сообществе.</span>
+  {% endif %}
+{% endif %}
