@@ -98,6 +98,7 @@ class PostsViewsTests(TestCase):
         form_fields = {
             'text': forms.fields.CharField,
             'group': forms.fields.ChoiceField,
+            'image': forms.fields.ImageField,
         }
         for address, args in context_urls:
             with self.subTest(address=address):
@@ -141,18 +142,13 @@ class PostsViewsTests(TestCase):
     def test_cache_index(self):
         """Проверяем что главная отдает кэшированные данные."""
         response_1 = self.auth_client.get(reverse('posts:index'))
-        count_1 = len(response_1.context['page_obj'])
-        Post.objects.create(
-            text='Тестовый пост контент 2',
-            group=self.group,
-            author=self.user,
-        )
+        Post.objects.all().delete()
         response_2 = self.auth_client.get(reverse('posts:index'))
-        self.assertEqual(response_1.content, response_2.content)
+        self.assertTrue(response_1.content == response_2.content)
         cache.clear()
         response_3 = self.auth_client.get(reverse('posts:index'))
-        count_3 = len(response_3.context['page_obj'])
-        self.assertEqual(count_3, count_1 + 1)
+        self.assertTrue(response_1.content != response_3.content)
+
 
     def test_follow(self):
         """Авторизованный пользователь может подписываться"""
@@ -165,12 +161,6 @@ class PostsViewsTests(TestCase):
         )
         follow_count2 = Follow.objects.count()
         self.assertEqual(follow_count + 1, follow_count2)
-        self.auth_follower_client.get(
-            reverse(
-                'posts:profile_follow',
-                args=(self.following,)
-            )
-        )
 
     def test_unfollow(self):
         """Авторизованный пользователь может ОТписываться"""
@@ -191,7 +181,7 @@ class PostsViewsTests(TestCase):
         response = self.auth_author.get(
             reverse('posts:follow_index')
         )
-        self.function_check(response)
+        self.assertIn(self.post, response.context['page_obj'])
 
     def test_unfollow_not_post(self):
         """Нового поста нет, кто не подписан"""
@@ -201,14 +191,47 @@ class PostsViewsTests(TestCase):
         content = response.context['page_obj']
         self.assertNotIn(self.post, content)
 
+    def test_follow_self(self):
+        """Тестирование подписки на самого себя"""
+        follow_count = Follow.objects.count()
+        self.auth_follower_client.get(
+            reverse(
+                'posts:profile_follow',
+                args=(self.follower,)
+            )
+        )
+        follow_count2 = Follow.objects.count()
+        self.assertEqual(follow_count, follow_count2)
+
+    def test_return_follow_self(self):
+        """Тестирование повторной подписки"""
+        follow_count = Follow.objects.count()
+        self.auth_follower_client.get(
+            reverse(
+                'posts:profile_follow',
+                args=(self.following,)
+            )
+        )
+        follow_count2 = Follow.objects.count()
+        self.assertEqual(follow_count + 1, follow_count2)
+        self.auth_follower_client.get(
+            reverse(
+                'posts:profile_follow',
+                args=(self.following,)
+            )
+        )
+        follow_count3 = Follow.objects.count()
+        self.assertEqual(follow_count2, follow_count3)
+
 
 class PaginatorViewTest(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         cls.user = User.objects.create(username='test-author')
+        cls.user_2 = User.objects.create_user(username='follower')
         cls.auth_client = Client()
-        cls.auth_client.force_login(cls.user)
+        cls.auth_client.force_login(cls.user_2)
         cls.group = Group.objects.create(
             title='Тестовая группа',
             slug='test',
@@ -224,12 +247,15 @@ class PaginatorViewTest(TestCase):
             post_list.append(new_post)
         Post.objects.bulk_create(post_list)
 
+    def setUp(self):
+        Follow.objects.create(user=self.user_2, author=self.user)
     def test_paginator(self):
         """Проверка пагинатора"""
         paginator_urls = (
             ('posts:index', None),
             ('posts:group_list', (self.group.slug,)),
-            ('posts:profile', (self.user.username,))
+            ('posts:profile', (self.user.username,)),
+            ('posts:follow_index', None)
         )
         pages_units = (
             ('?page=1', settings.POSTS_IN_PAGE),

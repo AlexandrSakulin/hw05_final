@@ -11,7 +11,7 @@
       {{ group.description|linebreaks }}
     </p>
     {% for post in page_obj %}
-      {% include 'posts/includes/card_post.html' %}
+      {% include 'posts/includes/card_post.html' with flag_group=True %}
     {% endfor %}
   {% include 'posts/includes/paginator.html' %}
   </div>

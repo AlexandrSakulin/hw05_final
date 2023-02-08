@@ -87,6 +87,12 @@ class Comment(models.Model):
         verbose_name="Время публикации"
     )
 
+    class Meta:
+        verbose_name_plural = 'Коментарии'
+        verbose_name = 'Коментарий'
+
+    def __str__(self):
+        return self.text[:15]
 
 class Follow(models.Model):
     user = models.ForeignKey(
@@ -101,3 +107,10 @@ class Follow(models.Model):
         related_name='following',
         verbose_name='Автор'
     )
+
+    class Meta:
+        verbose_name_plural = 'Подписки'
+        verbose_name = 'Подписка'
+
+    def __str__(self):
+        return f'{self.user} подписался на {self.author}'

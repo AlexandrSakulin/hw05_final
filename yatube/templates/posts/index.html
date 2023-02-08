@@ -5,6 +5,7 @@
     {% load cache %}
     {% cache 30 sidebar index page_obj.number %}
     <h1>Главная страница</h1>
+    {% include 'posts/includes/switcher.html' with index=True%}
     {% for post in page_obj %}
       {% include 'posts/includes/card_post.html' %}
       {% if not forloop.last %}<hr>{% endif %}

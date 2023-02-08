@@ -46,7 +46,10 @@ def profile(request, username):
 
 
 def post_detail(request, post_id):
-    post = get_object_or_404(Post, pk=post_id)
+    post = get_object_or_404(
+        Post.objects.select_related('author').prefetch_related(
+            'comments__author'), id=post_id
+    )
     form = CommentForm(
         request.POST or None,
         files=request.FILES or None
@@ -109,7 +112,9 @@ def add_comment(request, post_id):
 
 @login_required
 def follow_index(request):
-    posts = Post.objects.filter(author__following__user=request.user).all()
+    posts = Post.objects.filter(
+        author__following__user=request.user
+    ).select_related('author')
     page_obj = paginator_obj(request, posts)
     context = {
         'page_obj': page_obj
@@ -131,5 +136,8 @@ def profile_follow(request, username):
 
 @login_required
 def profile_unfollow(request, username):
-    Follow.objects.filter(author__username=username).delete()
-    return redirect('posts:profile', username=username)
+    Follow.objects.filter(
+        user=request.user,
+        author=get_object_or_404(User, username=username)
+    ).delete()
+    return redirect('posts:profile', username)
