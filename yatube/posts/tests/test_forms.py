@@ -7,7 +7,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
-from ..models import Group, Post, User, Comment
+from ..models import Comment, Group, Post, User
 
 TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
 
@@ -203,9 +203,6 @@ class CommentFormsTest(TestCase):
     def test_nonauthorized_user_create_comment(self):
         """Проверка создания комментария не авторизированным пользователем."""
         comments_count = Comment.objects.count()
-        post = Post.objects.create(
-            text='Текст поста для редактирования',
-            author=self.author)
         form_data = {'text': 'Тестовый коментарий'}
         response = self.client.post(
             reverse(

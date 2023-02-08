@@ -149,7 +149,6 @@ class PostsViewsTests(TestCase):
         response_3 = self.auth_client.get(reverse('posts:index'))
         self.assertTrue(response_1.content != response_3.content)
 
-
     def test_follow(self):
         """Авторизованный пользователь может подписываться"""
         follow_count = Follow.objects.count()
@@ -249,6 +248,7 @@ class PaginatorViewTest(TestCase):
 
     def setUp(self):
         Follow.objects.create(user=self.user_2, author=self.user)
+
     def test_paginator(self):
         """Проверка пагинатора"""
         paginator_urls = (
