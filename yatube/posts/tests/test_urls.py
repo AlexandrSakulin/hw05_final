@@ -75,7 +75,7 @@ class PostsURLTests(TestCase):
                 if address in [
                     'posts:post_edit',
                     'posts:add_comment'
-                    ]:
+                ]:
                     self.assertRedirects(
                         response, reverse(
                             'posts:post_detail', args=(self.post.id,))
