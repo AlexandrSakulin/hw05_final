@@ -202,7 +202,7 @@ class PostsViewsTests(TestCase):
         follow_count2 = Follow.objects.count()
         self.assertEqual(follow_count, follow_count2)
 
-    def test_return_follow_self(self):
+    def test_repeat_follow_self(self):
         """Тестирование повторной подписки"""
         follow_count = Follow.objects.count()
         self.auth_follower_client.get(

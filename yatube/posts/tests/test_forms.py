@@ -85,6 +85,13 @@ class PostsFormsTests(TestCase):
         self.assertEqual(post.text, form_data['text'])
         self.assertEqual(post.author, self.user)
         self.assertEqual(form_data['group'], self.group.id)
+        self.assertTrue(
+            Post.objects.filter(
+                group=form_data['group'],
+                text=form_data['text'],
+                image='posts/small.gif'
+            ).exists()
+        )
 
     def test_authorized_user_edit_post(self):
         """Проверка редактирования записи авторизированным клиентом."""
@@ -189,10 +196,10 @@ class CommentFormsTest(TestCase):
         response = self.authorized_author.post(
             reverse(
                 'posts:add_comment',
-                kwargs={'post_id': post.id}),
+                args=(post.id,)),
             data=form_data,
             follow=True)
-        comment = Comment.objects.latest('id')
+        comment = Comment.objects.first()
         self.assertEqual(Comment.objects.count(), comments_count + 1)
         self.assertEqual(comment.text, form_data['text'])
         self.assertEqual(comment.author, self.author)

@@ -72,26 +72,26 @@ class PostsURLTests(TestCase):
                 response = self.authorized_client.get(
                     reverse(address, args=args)
                 )
-                if address not in [
-                    'posts:post_edit',
+                if address == 'posts:post_edit':
+                    self.assertRedirects(
+                        response, reverse(
+                            'posts:post_detail', args=(self.post.id,))
+                    )
+                elif address in [
                     'posts:add_comment',
-                    'posts:profile_follow',
-                    'posts:profile_unfollow'
                 ]:
-                    self.assertEqual(response.status_code, HTTPStatus.OK)
+                    self.assertRedirects(response, reverse(
+                        'posts:post_detail', args=(self.post.id,))
+                    )
                 elif address in [
                     'posts:profile_follow',
                     'posts:profile_unfollow'
                 ]:
-                    reverse_author = reverse(
-                        'posts:profile', args=(self.author,)
+                    self.assertRedirects(response, reverse(
+                        'posts:profile', args=(self.author,))
                     )
-                    self.assertRedirects(response, reverse_author)
                 else:
-                    reverse_detail = reverse(
-                        'posts:post_detail', args=(self.post.id,)
-                    )
-                    self.assertRedirects(response, reverse_detail)
+                    self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_author_access(self):
         """Доступность для автора."""
@@ -100,25 +100,25 @@ class PostsURLTests(TestCase):
                 response = self.authorized_author.get(
                     reverse(address, args=args)
                 )
-                if address not in [
+                if address in [
                     'posts:add_comment',
-                    'posts:profile_follow',
-                    'posts:profile_unfollow'
                 ]:
-                    self.assertEqual(response.status_code, HTTPStatus.OK)
+                    self.assertRedirects(response, reverse(
+                        'posts:post_detail', args=(self.post.id,))
+                    )
                 elif address in [
                     'posts:profile_follow',
+                ]:
+                    self.assertRedirects(response, reverse(
+                        'posts:profile', args=(self.author,))
+                    )
+                elif address in [
                     'posts:profile_unfollow'
                 ]:
-                    reverse_author = reverse(
-                        'posts:profile', args=(self.author,)
-                    )
-                    self.assertRedirects(response, reverse_author)
+                    self.assertEqual(response.status_code,
+                                     HTTPStatus.NOT_FOUND)
                 else:
-                    reverse_detail = reverse(
-                        'posts:post_detail', args=(self.post.id,)
-                    )
-                    self.assertRedirects(response, reverse_detail)
+                    self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_urls_guest_fakepage(self):
         """Ответ 404 на несуществующую страницу"""

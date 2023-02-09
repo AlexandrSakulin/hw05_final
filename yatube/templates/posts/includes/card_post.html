@@ -19,7 +19,7 @@
   <p>{{ post.text|linebreaksbr }}</p>
   <a href="{% url 'posts:post_detail' post.pk %}">подробная информация </a> <br>
 </article>
-{% if not flag_profile  %}
+{% if not flag_group  %}
   {% if post.group  %}
     <a href="{% url 'posts:group_list' post.group.slug %}">все записи группы</a>
   {% else %}
