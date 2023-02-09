@@ -72,16 +72,13 @@ class PostsURLTests(TestCase):
                 response = self.authorized_client.get(
                     reverse(address, args=args)
                 )
-                if address == 'posts:post_edit':
+                if address in [
+                    'posts:post_edit',
+                    'posts:add_comment'
+                    ]:
                     self.assertRedirects(
                         response, reverse(
                             'posts:post_detail', args=(self.post.id,))
-                    )
-                elif address in [
-                    'posts:add_comment',
-                ]:
-                    self.assertRedirects(response, reverse(
-                        'posts:post_detail', args=(self.post.id,))
                     )
                 elif address in [
                     'posts:profile_follow',
