@@ -177,4 +177,4 @@ python yatube/manage.py runserver localhost:80
 Заходим в http://localhost/admin и создаем группы и записи.
 После чего записи и группы появятся на главной странице.
 
-Автор: [Александр Сакулин](https://github.com/AlexandrSakulin) :+1:
+Автор: [Александр С.](https://github.com/AlexandrSakulin) :+1:
